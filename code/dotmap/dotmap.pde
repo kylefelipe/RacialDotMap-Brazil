@@ -24,56 +24,29 @@ class PersonPoint {
 ArrayList people;
 
 float pointWeight(int level) {
-  switch(level) {
-  case 4: 
-      return 0.01;
-  case 5: 
-      return 0.01;
-  case 6: 
-      return 0.01;
-  case 7: 
-      return 0.01;
-  case 8: 
-      return 0.01;
-  case 9: 
-      return 0.02;
-  case 10: 
-      return 0.02;
-  case 11: 
-      return 0.02;
-  case 12: 
-      return 0.02;
-  case 13: 
-      return 0.02;
-  default: 
-    return 0.0;
+  if (level < 9 || level > 14) {
+    return 0.01;
+  }
+  else {
+    return 0.02;
   }
 }
 
 float transparent(int level) {
-  switch(level) {
-  case 4: 
-      return 153;
-  case 5: 
-      return 153;
-  case 6: 
-      return 179;
-  case 7: 
-      return 179;
-  case 8: 
-      return 204;
-  case 9: 
-      return 204;
-  case 10: 
-      return 230;
-  case 11: 
-      return 230;
-  case 12: 
-      return 255;
-  case 13: 
-      return 255;
-  default: 
-    return 0.0;
+  if (level < 6) {
+    return 153;
+  }
+  else if (level < 8) {
+    return 179;
+  }
+  else if (level < 10) {
+    return 204;
+  }
+  else if (level < 12) { 
+    return 230;
+  }
+  else {
+    return 255;
   }
 }
 
@@ -82,55 +55,52 @@ void setup(){
   size(512, 512, JAVA2D);
   smooth(8);
 
-  String[] zoomlevels = loadStrings(".../zoomlevel.txt");  // a text file with lines 4, 5, 6 ...etc. specifing zoomlevel
+  String[] zoomlevels = loadStrings("zoomlevel.txt");  // a text file with lines 4, 5, 6 ...etc. specifing zoomlevel
 
-  for ( int i=0; i<zoomlevels.length; i++ ) {
+  for (int i = 0; i < zoomlevels.length; i++) {
 
     int level = int(zoomlevels[i]);
 
-    println( "loading..." );
-    reader = createReader(".../peoplesort_by_race.csv");  // the datafile (converted to .csv) sorted by quadkey
+    println("Starting up...");
+    reader = createReader("sorted.csv");  // the datafile (converted to .csv) sorted by quadkey
     try {
       String line;
-
       String quadkey = "";
-      PGraphics pg = null;
+      PGraphics pg = null; // processing image to be filled by dots
       PVector tms_tile = null;
       
-      int rown = 0;
+      int rown = 0; // row counter
       
       line = reader.readLine();
       
       while (true) {
-        
         line = reader.readLine();
         
-        if (line==null || line.length()==0) {
-          println( "file done" );
+        if (line == null || line.length() == 0) {
+          println("file done");
           break;
         }
         
         rown += 1;
         
         if (rown % 100000 == 0) {
-          println( rown );
+          println(rown);
         }
-
         String[] fields = split(line, ",");
         float px = float(fields[1])/A;
         float py = float(fields[2])/A;
         String newQuadkey = fields[3].substring(0,level);
         String race_type = fields[4].substring(0, 1);
 
-        if ( !newQuadkey.equals( quadkey ) ) {
+        if (!newQuadkey.equals(quadkey)) { // if next quadkey is diff from previous -> new tile is initialized
           
           //finish up the last tile
-          if (pg!=null) {
+          if (pg != null) {
             pg.endDraw();
             PVector gtile = proj.GoogleTile((int)tms_tile.x, (int)tms_tile.y, level);
-            println( ".../tiles4/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png" );
-            pg.save( ".../tiles4/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png" );
-            println( "done" );
+            println("tiles_black/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png saved.");
+            pg.save("tiles_black/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png");
+            println("Last tile done.");
           }
 
           quadkey = newQuadkey;
@@ -138,7 +108,7 @@ void setup(){
           PVector google_tile = proj.QuadKeyToTileXY( newQuadkey );
           tms_tile = proj.GoogleTile( (int)google_tile.x, (int)google_tile.y, level );
 
-          println( level+" "+tms_tile.x+" "+tms_tile.y );
+          println("Level: "+ level +" "+ tms_tile.x +" "+ tms_tile.y );
 
           pg = createGraphics(512, 512, JAVA2D);
           pg.beginDraw();
@@ -162,45 +132,50 @@ void setup(){
           pg.strokeWeight(pointWeight(level));
           
           pg.background(255);
-        
         }
         
-        if (race_type.equals("w")) {
-          pg.stroke(#73B2FF, transparent(level));
+        /*if (pg != null) { // pure black map code, comment if generating coloured map
+          pg.stroke(0, 0, 0, transparent(level));
+          pg.point(px, py);
+        }
+        */
+        
+        if (race_type.equals("w") && pg != null) { // brancos
+          pg.stroke(115, 178, 255, transparent(level)); // blue
           pg.point(px, py);
         }
           
-        if (race_type.equals("b")) {
-          pg.stroke(159,212,0, transparent(level));
+        if (race_type.equals("b") && pg != null) { // pretos
+          pg.stroke(255, 0, 0, transparent(level)); // red
           pg.point(px, py);
         }
         
-        if (race_type.equals("a")) {
-          pg.stroke(255,0,0, transparent(level));
+        if (race_type.equals("a") && pg != null) { // asiaticos
+          pg.stroke(255, 170, 0, transparent(level)); // yellow
           pg.point(px, py);
         }
           
-        if (race_type.equals("h")) {
-          pg.stroke(255,170,0, transparent(level));
+        if (race_type.equals("h") && pg != null) { // pardos
+          pg.stroke(159, 212, 0, transparent(level)); // green
           pg.point(px, py);
         }
           
-        if (race_type.equals("o")) {
-          pg.stroke(#996633, transparent(level));
+        if (race_type.equals("o") && pg != null) { // indigenas
+          pg.stroke(#996633, transparent(level)); // grey
           pg.point(px, py);
         }
-       
+
       }
 
-      if (pg!=null) {
+      if (pg != null) { // if tile has at least 1 dot
         pg.endDraw();
         PVector gtile = proj.GoogleTile((int)tms_tile.x, (int)tms_tile.y, level);
-        pg.save( ".../tiles4/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png" );
-        println( "done" );
+        pg.save("tiles_black/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png");
+        println("One tile done.");
       }
     } 
     catch (IOException e) {
-      //e.printStackTrace();
+      e.printStackTrace();
     }
   }
 }

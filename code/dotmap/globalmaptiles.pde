@@ -257,7 +257,6 @@ class GlobalMercator {
 
                 }
             }
-            
             return new PVector(tileX,tileY,levelOfDetail);
         }
 }
