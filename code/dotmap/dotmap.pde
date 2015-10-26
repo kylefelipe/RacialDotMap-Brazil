@@ -98,8 +98,8 @@ void setup(){
           if (pg != null) {
             pg.endDraw();
             PVector gtile = proj.GoogleTile((int)tms_tile.x, (int)tms_tile.y, level);
-            println("tiles_black/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png saved.");
-            pg.save("tiles_black/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png");
+            println("tiles/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png saved.");
+            pg.save("tiles/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png");
             println("Last tile done.");
           }
 
@@ -170,7 +170,7 @@ void setup(){
       if (pg != null) { // if tile has at least 1 dot
         pg.endDraw();
         PVector gtile = proj.GoogleTile((int)tms_tile.x, (int)tms_tile.y, level);
-        pg.save("tiles_black/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png");
+        pg.save("tiles/"+level+"/"+int(gtile.x)+"/"+int(gtile.y)+".png");
         println("One tile done.");
       }
     } 
