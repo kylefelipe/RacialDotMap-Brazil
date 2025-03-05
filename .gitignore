@@ -1,0 +1,25 @@
+# ignora a pasta tiles
+code/tiles/
+# ignora todos os arquivos de dados geográficos em qualquer lugar
+*.gpkg
+*.csv
+*.shp
+*.shx
+*.dbf
+*.prj
+*.cpg
+# ignora arquivos .zip
+*.zip
+# ignora a pasta do ambiente virtual
+*.venv/
+*.env
+
+# Ignora arquivos desnecessários do python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyw
+*.pyz
+*.pywz
+*v10*
