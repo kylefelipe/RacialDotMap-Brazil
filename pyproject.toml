@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "dados-raciais"
+version = "0.1.0"
+description = "Gera dados raciais da SNP"
+authors = ["Kyle Felipe <kylefelipe@gmail.com>"]
+readme = "README.md"
+packages = [
+  {include = "estudos_tematicos", from = "."}
+]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+shapely = "^2.0.6"
+gdal = "=3.6.2"
+pandas = "^2.2.3"
+geopandas = "^1.0.1"
+tqdm = "^4.67.1"
+pillow = "^11.0.0"
+psycopg2 = "^2.9.10"
+sqlalchemy = "^2.0.36"
+geoalchemy2 = "^0.16.0"
+python-dotenv = "^1.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
