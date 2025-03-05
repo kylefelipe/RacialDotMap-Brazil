@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WFS e VectorTile</title>
+  <script src="v10.3.1-package/dist/ol.js"></script>
+  <link rel="stylesheet" href="v10.3.1-package/ol.css">
+  <style>
+    html, body {
+      font-family: sans-serif;
+      width: 100%;
+    }
+    .map {
+      height: 500px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h3>Mapas: WFS e VectorTile</h3>
+  <div id="map" class="map"></div>
+  <script>
+    // Estilo para camada WFS
+    var style_simple = new ol.style.Style({
+      fill: new ol.style.Fill({
+        color: 'rgba(173, 216, 230, 0.5)' // Azul claro com transparência
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#880000', // Vermelho escuro
+        width: 2
+      })
+    });
+
+    // Fonte para a camada WFS
+    var vectorSource = new ol.source.Vector({
+      format: new ol.format.GeoJSON(),
+      url: function(extent) {
+        return 'https://dev-geoserver.100.28.135.68.sslip.io/geoserver/wfs?' +
+          'service=WFS&version=2.0.0&request=GetFeature&typeName=mapa_periferias:estado' +
+          '&outputFormat=application/json&srsname=EPSG:4326';
+      },
+      strategy: ol.loadingstrategy.bbox // Carrega dados por bounding box
+    });
+
+    // Camada WFS
+    var vectorLayer = new ol.layer.Vector({
+      source: vectorSource,
+      style: style_simple
+    });
+
+    // Estilo para camada de pessoas
+    function pessoasStyle(feature) {
+      return new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'rgba(0, 0, 0, 0)' // Transparente para áreas sem dados
+        }),
+        stroke: new ol.style.Stroke({
+          color: 'rgba(255, 0, 0, 0.7)', // Vermelho semi-transparente
+          width: 1
+        })
+      });
+    }
+    function pessoasStyle(feature) {
+      var raca = feature.get('raca'); // Obtenha o valor do atributo 'raca'
+
+      var fillColor = 'rgba(0, 0, 0, 0)'; // Cor padrão para áreas sem dados
+
+      // Define a cor do preenchimento com base no valor do atributo 'raca'
+      switch (raca) {
+        case 'preta':
+          fillColor = 'rgba(255, 0, 0, 1)'; // Vermelho
+          break;
+        case 'branca':
+          fillColor = 'rgba(115, 178, 255, 1)'; // Azul Claro
+          break;
+        case 'amarela':
+          fillColor = 'rgba(255, 170, 0, 1)'; // Amarelo
+          break;
+        case 'parda':
+          fillColor = 'rgba(159, 212, 0, 1)'; // Verde
+          break;
+        case 'indigena':
+          fillColor = 'rgba(153, 102, 51, 1)'; // Marrom
+          break;
+        default:
+          fillColor = 'rgba(0, 0, 0, 0)'; // Caso o valor da raça seja indefinido, torna-se transparente
+          break;
+      }
+
+      // Retorna o estilo com o preenchimento colorido e borda vermelha
+      return new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: fillColor // A cor preenchida depende do atributo 'raca'
+        }),
+        stroke: new ol.style.Stroke({
+          color: 'rgba(255, 0, 0, 0.7)', // Vermelho semi-transparente para a borda
+          width: 1
+        }),
+        image: new ol.style.Circle({
+          radius: 6, // Tamanho do ponto
+          fill: new ol.style.Fill({
+            color: fillColor // Cor preenchida do ponto
+          }),
+          stroke: new ol.style.Stroke({
+            color: 'rgba(255, 0, 0, 0.7)', // Borda do ponto
+            width: 1
+          })
+        })
+      });
+    }
+
+    var mapa_geoserver = 'https://dev-geoserver.100.28.135.68.sslip.io/geoserver/wms'
+    // Camada de pessoas (VectorTile)
+    var layer_pessoas = 'mapa_periferias:acre_pessoas';
+    var projection_epsg_no = '4326';
+    // var pessoasLayer = new ol.layer.VectorTile({
+    //   style: pessoasStyle,
+    //   source: new ol.source.VectorTile({
+    //     tilePixelRatio: 1, // Oversampling quando > 1
+    //     tileGrid: ol.tilegrid.createXYZ({ maxZoom: 19 }),
+    //     format: new ol.format.MVT(),
+    //     url: mapa_geoserver + '/tiles/tms/1.0.0/' + layer_pessoas +
+    //       '@EPSG%3A' + projection_epsg_no + '@pbf/{z}/{x}/{-y}.pbf'
+    //   }),
+    //   zindex: 0
+    // });
+
+    // new layer tile pessoas
+    var layer_pessoas_tile = new ol.layer.Tile({
+      source: new ol.source.TileWMS({
+        url: mapa_geoserver + '/wms',
+        params: {
+          'LAYERS': layer_pessoas,
+          'TILED': true
+        },
+        serverType: 'geoserver'
+      }),
+      zindex: 1
+    });
+    // Inicialização do mapa
+    var map = new ol.Map({
+      target: 'map',
+      view: new ol.View({
+        center: ol.proj.fromLonLat([-70, -9]), // Coordenadas centradas no Brasil
+        zoom: 5
+      }),
+      layers: [
+        new ol.layer.Tile({
+          source: new ol.source.OSM() // Camada base OpenStreetMap
+        }),
+        vectorLayer, // Camada WFS
+        // pessoasLayer, // Camada VectorTile
+        layer_pessoas_tile // Camada Tile
+
+      ]
+    });
+  </script>
+</body>
+</html>
