@@ -1,5 +1,6 @@
 # ignora a pasta tiles
 code/tiles/
+tiles/
 # ignora todos os arquivos de dados geográficos em qualquer lugar
 *.gpkg
 *.csv
