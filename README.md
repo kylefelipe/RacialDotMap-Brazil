@@ -4,10 +4,9 @@ Este repositório é um fork do repositório do [Padadata](https://patadata.org/
 
 Aqui contém os códigos em Python para a criação de um banco de dados de pontos para cada pessoa no Brasil, codificado por raça, para serem disponibilizados na plataforma [Mapa das Periferias](https://mapadasperiferias.cidades.gov.br/), esses pontos são gerados de forma aleatória e não representam a localização real das pessoas.
 
-Os dados utilizados para a codificação por raça são do [IBGE](https://www.ibge.gov.br/), e são referentes ao Censo Demográfico de 2010 e
-2022, e os dados georreferenciados dos setores censitários, todos sendo baixados diretamente do ftp do IBGE por meio de código também.
+Os dados utilizados para a codificação por raça são do [IBGE](https://www.ibge.gov.br/) e são referentes ao Censo Demográfico de 2022, os dados georreferenciados dos setores censitários, todos sendo baixados diretamente do ftp do IBGE por meio de código também.
 
-Para a criação do banco de dados, foi utilizado o pacote [geopandas](https://geopandas.org/) para a manipulação de dados geográficos, e o pacote [pandas](https://pandas.pydata.org/) para a manipulação de dados tabulares. Com esses pacotes é possível fazer a união dos dados do censo com os dados georreferenciados, e a criação de um banco de dados de pontos aleatórios.
+Para a criação do banco de dados, foi utilizado o pacote [geopandas](https://geopandas.org/) para a manipulação de dados geográficos e o pacote [pandas](https://pandas.pydata.org/) para a manipulação de dados tabulares. Com esses pacotes é possível fazer a união dos dados do censo com os dados georreferenciados, e a criação de um banco de dados de pontos aleatórios.
 
 Utilizamos também, para facilitar na documentação dos processos e na organização do código, o pacote [jupyter-book](https://jupyterbook.org/intro.html), que permite a criação de jupyter notebooks, onde é possível documentar o processo de criação do banco de dado.
 
@@ -55,9 +54,42 @@ Para criar o banco de dados, vamos utilizar o notebook de acordo com o ano [cria
 Os arquivos serão salvos na pasta `./COR_RACA/{ANO}/pontos_aleatorios`, onde `{ANO}` é o ano do censo.
 O nome do arquivo de ponto aleatório é sempre formado por `{sigla_uf}_pontos_pessoas.gpkg` onde `{sigla_uf}` é a sigla do estado.
 
+## Ordenando os dados
+Após a criação dos pontos aleatórios, é necessário ordenar os dados para facilitar a renderização no mapa, para isso, vamos utilizar o terminal para utilizar menos memória e aumentar a velocidade de execução.
+Vamos ordenar os dados utilizando o comando `ogr2ogr`, que é um comando do [GDAL](https://gdal.org/) para manipulação de dados geoespaciais pelo campo `quadkey`, que é o campo utilizado para a renderização dos dados no mapa.
+
+1. Abra o terminal e navegue até a pasta onde os dados foram salvos.
+2. Execute o seguinte comando para ordenar os dados:
+
+>> Obs: O comando deve ser executado para cada arquivo de ponto aleatório criado.
+
+```bash
+ogr2ogr -f GPKG <nome_do_arquivo_de_saida>.gpkg \
+        -sql "SELECT * FROM <nome_da_camada> ORDER BY quadkey" \
+        -unsetFid \
+        -nln teste_ordem \
+        <endereco_do_arquivo>.gpkg
+```
+
+Onde:
+
+* `<nome_do_arquivo_de_saida>`: Nome do arquivo de saída onde será salvo os dados ordenados.
+* `<nome_da_camada>`: Nome da camada do arquivo de entrada (costuma ser o mesmo nome do arquivo de entrada).
+* `<endereco_do_arquivo>`: Endereço do arquivo de entrada a ser ordenado.
+
+Exemplo de comando:
+
+```bash
+ogr2ogr -f GPKG ac_pontos_ordenados.gpkg \
+        -sql "SELECT * FROM ac_pontos_pessoas ORDER BY quadkey" \
+        -unsetFid \
+        -nln teste_ordem \
+        ./COR_RACA/2022/pontos_aleatorios/ac_pontos_pessoas.gpkg
+```
+
 ## Publicando os dados no Mapa das Periferias
 
-Após a criação dos pontos aleatórios, é necessário publicar os dados no [Mapa das Periferias](https://mapadasperiferias.cidades.gov.br/), para isso, vamos precisar de alguns dados:
+Após a criação dos pontos aleatórios e ordenação, é necessário publicar os dados no [Mapa das Periferias](https://mapadasperiferias.cidades.gov.br/), para isso, vamos precisar de alguns dados:
 
 * `db_host`: Host do banco de dados
 * `db_port`: Porta do banco de dados
@@ -164,6 +196,6 @@ Essas informações devem ser alteradas no notebook [publica_dados.ipynb](public
 
 ## Documentações
 
-[Patadata](https://patadata.org/)
-[Repositório Brazil Racial Dotmap](https://github.com/zynphull/RacialDotMap-Brazil)
-[Documentação dos nomes dos campos utilizados no censo de 2022](https://agenciadenoticias.ibge.gov.br/media/com_mediaibge/arquivos/3083d0bc0f22b062362290dd2c67b914.pdf)
+* [Patadata](https://patadata.org/)
+* [Repositório Brazil Racial Dotmap](https://github.com/zynphull/RacialDotMap-Brazil)
+* [Documentação dos nomes dos campos utilizados no censo de 2022](https://agenciadenoticias.ibge.gov.br/media/com_mediaibge/arquivos/3083d0bc0f22b062362290dd2c67b914.pdf)
