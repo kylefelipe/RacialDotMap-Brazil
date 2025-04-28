@@ -99,6 +99,8 @@ Após a criação dos pontos aleatórios e ordenação, é necessário publicar 
 
 Esses dados devem ser informados via variável de ambiente ou no arquivo `.env` na raiz do projeto. Podemos copiar o arquivo `.env.example` e preencher as variáveis.
 
+Ex.:
+
 ```bash
 cp .env.example .env
 ```
